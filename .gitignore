@@ -1,0 +1,4 @@
+# secret management
+.secrets.baseline
+.env
+*.local
