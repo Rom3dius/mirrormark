@@ -120,6 +120,15 @@ function M.copy_file(filepath)
 		if filepath:sub(1, #local_root) == local_root and filepath:match("%.md$") then
 			local rel = filepath:sub(#local_root + 2)
 			local remote_file = remote_root .. "/" .. rel
+			local remote_dir = remote_file:match("(.+)/")
+			if remote_dir then
+				run_rclone({
+					M.config.rclone_binary or "rclone",
+					"mkdir",
+					remote_dir,
+				})
+			end
+
 			run_rclone({
 				M.config.rclone_binary or "rclone",
 				"copyto",
