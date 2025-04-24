@@ -176,7 +176,7 @@ function M.setup(user_config)
 		return
 	end
 	if not M.config.remote_root or M.config.remote_root == "" then
-		vim.notify('[mirrormark] You must supply "remote_root', vim.log_levels.ERROR)
+		vim.notify('[mirrormark] You must supply "remote_root', vim.log.levels.ERROR)
 		return
 	end
 	setup_autocmds()
