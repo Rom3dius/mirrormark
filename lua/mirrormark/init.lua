@@ -177,7 +177,7 @@ function M.setup(user_config)
 	M.config = vim.tbl_extend("force", {
 		rclone_binary = "rclone", -- path to rclone executable
 		rclone_remote = "nc-webdav", -- rclone remote alias
-		remote_subdir = nil, -- required subfolder inside the remote
+		remote_root = nil, -- required subfolder inside the remote
 	}, user_config or {})
 
 	if type(M.config.folders) ~= "table" then
