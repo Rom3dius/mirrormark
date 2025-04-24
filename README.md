@@ -1,39 +1,50 @@
-# md_nextcloud_sync
+# MirrorMark
 
-A minimal Neovim plugin to sync markdown files to Nextcloud via WebDAV. Ideal for users who take notes in markdown—whether you're using [`zettelkasten.nvim`](https://github.com/Furkanzmc/zettelkasten.nvim) or any other system.
+A minimal Neovim plugin to bi-directionally sync your Markdown files with any rclone-compatible remote (e.g., Nextcloud WebDAV, S3, Google Drive). Perfect for note-takers using [`zettelkasten.nvim`](https://github.com/Furkanzmc/zettelkasten.nvim) or any other Markdown-based system.
 
 If you're using this, star the repo!
 
-Credit to ChatGPT and StackOverflow for much needed assistance.
+Credit to ChatGPT and StackOverflow for much-needed assistance.
 
 ## ✨ Features
 
-- Syncs all markdown files from one or more local folders to your Nextcloud server.
-- Automatically uploads on Neovim startup and every time a markdown file is saved.
-- Designed for use with [`zettelkasten.nvim`](https://github.com/Furkanzmc/zettelkasten.nvim) untested but should work with any markdown notes / markdown wiki plugin.
+- **True bi-directional sync** via `rclone bisync` on startup (`VimEnter`).
+- **Instant file-level sync** on every Markdown save (`BufWritePost`) using `rclone copyto` (push then pull) for minimal latency.
+- **Customizable remotes**: works with any remote you configure in `rclone config` (WebDAV, S3, etc.).
+- **Multiple folders**: mirror several local roots to different remote subfolders.
+- **Lightweight**: no heavy dependencies; just a single `rclone` binary.
 
 ## 🔧 Installation
 
-Create the root folder you would like your notes synced to in Nextcloud.
-OPTIONAL: Create an app password for the plugin to use instead of your real password.
+First, install and configure [rclone](https://rclone.org/):
+
+1. Download the latest `rclone` binary and place it on your `$PATH`.
+2. Run `rclone config` and set up a remote (e.g. `nc-webdav`) pointing to your Nextcloud (or other) endpoint.
 
 ### With `lazy.nvim`
 
-#### Remote (GitHub)
-
-```lua
+````lua
 {
-  "Rom3dius/md_nextcloud_sync",
+  "Rom3dius/mirrormark",
   config = function()
-    require("md_nextcloud_sync").setup({
-      folders = { "~/YOUR_NOTES", "~/YOUR_EXTRA_NOTES" },
-      nextcloud_user = os.getenv("NEXTCLOUD_USER"),
-      nextcloud_pass = os.getenv("NEXTCLOUD_PASS"),
-      nextcloud_url = "https://your-nextcloud-domain/remote.php/dav/files/YOUR_USERNAME/YOUR_NEXTCLOUD_NOTES_FOLDER/"
+    require('mirrormark').setup({
+      -- list of folders to sync
+      folders = {
+        '~/YOUR_NOTES',
+      },
+
+      -- rclone remote alias (must match a remote in `rclone config`)
+      rclone_remote = 'nc-webdav',
+
+      -- subfolder inside the remote for all sync roots
+      remote_subdir = 'md-sync',
+
+      -- optional: path to a custom rclone binary
+      rclone_binary = '/usr/local/bin/rclone',
     })
   end,
 }
-```
+
 
 #### Development
 
@@ -42,7 +53,7 @@ OPTIONAL: Create an app password for the plugin to use instead of your real pass
 ```bash
 make setup
 make check-secrets
-```
+````
 
 This isn't ironclad, small passwords WILL slip through this pre-commit.
 
@@ -50,13 +61,12 @@ This isn't ironclad, small passwords WILL slip through this pre-commit.
 
 ```lua
 {
-  dir = "~/path/to/md_nextcloud_sync",
+  dir = "~/src/mirrormark",
   config = function()
-    require("md_nextcloud_sync").setup({
-      folders = { "~/YOUR_NOTES", "~/YOUR_EXTRA_NOTES" },
-      nextcloud_user = os.getenv("NEXTCLOUD_USER"),
-      nextcloud_pass = os.getenv("NEXTCLOUD_PASS"),
-      nextcloud_url = "https://your-nextcloud-domain/remote.php/dav/files/YOUR_USERNAME/YOUR_NEXTCLOUD_NOTES_FOLDER/"
+    require("mirrormark").setup({
+      folders = { "~/YOUR_NOTES" },
+      rclone_remote = "YOUR_RCLONE_REMOTE",
+      remote_root = "YOUR_NOTES_FOLDER",
     })
   end,
 }
